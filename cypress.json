@@ -1,7 +1,0 @@
-{
-  "component": {
-    "testFiles": "**/*.cy.*",
-    "componentFolder": "src",
-    "videos": false
-  }
-}
