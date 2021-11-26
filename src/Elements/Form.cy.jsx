@@ -1,314 +1,265 @@
 import Form from './Form.vue'
+import faker from 'faker'
+
+const description = faker.name.title()
+const title = faker.name.prefix(1)
+const sectionTitle = 'Person'
+const dividerSelector = '[data-testid=field-divider]'
+const sectionTitleSelector = '[data-testid=field-section_title]'
+const fieldsSelector = '[data-testid*=field]' // All fields
 
 describe('Form Setup', () => {
+  it('renders form element with attributes', () => {
+    cy.mount(<Form method="POST" action="/users/new" />)
 
-    it('renders form element with attributes', () => {
-        cy.mount(<Form />, {
-            props: {
-                method: 'POST',
-                action: '/users/new',
-            }
-        })
-
-        cy.get('form')
-            .invoke('attr', 'action')
-            .should('eq', '/users/new')
-
-        cy.get('form')
-            .invoke('attr', 'method')
-            .should('eq', 'POST')
-    })
+    cy.get('form')
+      .should('have.attr', 'action', '/users/new')
+      .and('have.attr', 'method', 'POST')
+  })
 })
 
 describe('Form Fields', () => {
+  it('with a flat array of field names', () => {
+    cy.mount(() => (
+      <Form action="/users/new" fields={['title', 'description']} />
+    ))
 
-    it('with a flat array of field names', () => {
-        cy.mount(<Form />, {
-            props: {
-                action: '/users/new',
-                fields: ['title', 'description']
-            }
-        })
+    cy.get('form input').should('have.length', 2)
+    cy.findByLabelText('Title').should('be.visible')
+    cy.findByLabelText('Description').should('be.visible')
+    cy.findByRole('textbox', { name: 'Description' }).should('not.have.value')
+    cy.findByRole('textbox', { name: 'Title' }).should('not.have.value')
+  })
 
-        cy.get('form input').should('have.length', 2)
-        cy.get('label[for="title"]').should('contain.text', 'Title')
-        cy.get('label[for="description"]').should('contain.text', 'Description')
-        cy.get('input[name="title"]').should('exist').should('not.have.value')
-        cy.get('input[name="description"]').should('exist').should('not.have.value')
-    })
+  it('with values when passed a values object', () => {
+    cy.mount(() => (
+      <Form fields={['title', 'description']} values={{ title, description }} />
+    ))
 
-    it('with values when passed a values object', () => {
-        cy.mount(<Form />, {
-            props: {
-                fields: ['title', 'description'],
-                values: {title: 'Titanic', description: 'row row row your boat'}
-            }
-        })
+    cy.findByRole('textbox', { name: 'Description' }).should(
+      'have.value',
+      description
+    )
+    cy.findByRole('textbox', { name: 'Title' }).should('have.value', title)
+  })
 
-        cy.get('input[name="title"]').should('have.value', 'Titanic')
-        cy.get('input[name="description"]').should('have.value', 'row row row your boat')
-    })
+  it('with a values object only', () => {
+    cy.mount(() => <Form values={{ title, description }} />)
 
-    it('with a values object only', () => {
-        cy.mount(<Form />, {
-            props: {
-                values: {title: 'Titanic', description: 'row row row your boat'}
-            }
-        })
+    cy.findByRole('textbox', { name: 'Description' }).should(
+      'have.value',
+      description
+    )
+    cy.findByRole('textbox', { name: 'Title' }).should('have.value', title)
+  })
 
-        cy.get('input[name="title"]').should('have.value', 'Titanic')
-        cy.get('input[name="description"]').should('have.value', 'row row row your boat')
-    })
+  it('with a values object and excludes', () => {
+    cy.mount(() => (
+      <Form
+        action="/users/new"
+        exclude={['description']}
+        values={{ title, description }}
+      />
+    ))
 
-    it('with a values object and excludes', () => {
-        cy.mount(<Form />, {
-            props: {
-                action: '/users/new',
-                exclude: ['description'],
-                values: {title: 'Titanic', description: 'row row row your boat'}
-            }
-        })
+    cy.findByRole('textbox', { name: 'Description' }).should('not.exist')
+    cy.findByRole('textbox', { name: 'Title' }).should('have.value', title)
+  })
 
-        cy.get('input[name="title"]').should('have.value', 'Titanic')
-        cy.get('input[name="description"]').should('not.exist')
-    })
+  it('with an object', () => {
+    cy.mount(() => (
+      <Form
+        field={[{ name: 'title' }, { name: 'description' }]}
+        values={{ title: '', description: '' }}
+      />
+    ))
 
-    it('with an object', () => {
-        cy.mount(<Form />, {
-            props: {
-                fields: [
-                    { name: 'title' },
-                    { name: 'description' },
-                ]
-            }
-        })
+    cy.findByLabelText('Title').should('be.visible')
+    cy.findByLabelText('Description').should('be.visible')
+    cy.findByRole('textbox', { name: 'Title' }).should('be.visible')
+    cy.findByRole('textbox', { name: 'Description' }).should('be.visible')
+  })
 
-        cy.get('label[for="title"]').should('contain.text', 'Title')
-        cy.get('label[for="description"]').should('contain.text', 'Description')
-        cy.get('input[name="title"]').should('exist')
-        cy.get('input[name="description"]').should('exist')
-    })
+  it('with an object & default value', () => {
+    cy.mount(() => (
+      <Form
+        fields={[{ name: 'title', value: title }, { name: 'description' }]}
+      />
+    ))
 
-    it('with an object & default value', () => {
-        cy.mount(<Form />, {
-            props: {
-                fields: [
-                    { name: 'title', value: 'Titanic' },
-                    { name: 'description' },
-                ]
-            }
-        })
+    cy.findByRole('textbox', { name: 'Title' }).should('have.value', title)
+    cy.findByRole('textbox', { name: 'Description' }).should('not.have.value')
+  })
 
-        cy.get('input[name="title"]').should('have.value', 'Titanic')
-        cy.get('input[name="description"]').should('not.have.value')
-    })
+  it('with an object & width span', () => {
+    cy.mount(() => (
+      <Form
+        fields={[
+          { name: 'title', span: 6 },
+          { name: 'description', span: 3 },
+          { name: 'author_id' },
+        ]}
+      />
+    ))
 
-    it('with an object & width span', () => {
-        cy.mount(<Form />, {
-            props: {
-                fields: [
-                    { name: 'title', span: 6 },
-                    { name: 'description', span: 3 },
-                    { name: 'author_id' }
-                ]
-            }
-        })
-
-        cy.get('[data-testid="field-title"]').should('have.class', 'col-span-6')
-        cy.get('[data-testid="field-description"]').should('have.class', 'col-span-3')
-        cy.get('[data-testid="field-author_id"]').should('have.class', 'col-span-12')
-    })
+    cy.get('[data-testid="field-title"]').should('have.class', 'col-span-6')
+    cy.get('[data-testid="field-description"]').should(
+      'have.class',
+      'col-span-3'
+    )
+    cy.get('[data-testid="field-author_id"]').should(
+      'have.class',
+      'col-span-12'
+    )
+  })
 })
 
 describe('Form Field Extras', () => {
+  it('with a divider', () => {
+    cy.mount(() => (
+      <Form
+        fields={[{ name: 'title' }, { divider: true }, { name: 'description' }]}
+      />
+    ))
 
-    it('with a divider', () => {
+    cy.get(dividerSelector).should('have.length', 1)
+  })
 
-        cy.mount(<Form />, {
-            props: {
-                fields: [
-                    { name: 'title' },
-                    { divider: true },
-                    { name: 'description' },
-                ]
-            }
-        })
+  it('with a section titles', () => {
+    cy.mount(() => (
+      <Form
+        fields={[
+          { section_title: sectionTitle },
+          { name: 'title' },
+          { name: 'description' },
+        ]}
+      />
+    ))
 
-        cy.get('[data-testid="field-title"]')
-            .siblings('[data-testid="field-divider"]')
-            .should('have.length', 1)
-
-        cy.get('[data-testid="field-divider"]')
-            .siblings('[data-testid="field-description"]')
-            .should('have.length', 1)
-    })
-
-    it('with a section titles', () => {
-
-        cy.mount(<Form />, {
-            props: {
-                fields: [
-                    { name: 'title' },
-                    { section_title: 'Some title' },
-                    { name: 'description' },
-                ]
-            }
-        })
-
-        cy.get('[data-testid="field-title"]')
-            .siblings('[data-testid="field-section_title"]')
-            .should('have.length', 1)
-            .should('have.text', 'Some title')
-
-        cy.get('[data-testid="field-section_title"]')
-            .siblings('[data-testid="field-description"]')
-            .should('have.length', 1)
-    })
+    cy.get(sectionTitleSelector).should('contain.text', sectionTitle)
+    cy.get(fieldsSelector).should('have.length', 3)
+  })
 })
 
 describe('Form Field Slots', () => {
-    it.skip('overrides entire field block via slot', () => {
+  it('overrides entire field block via slot', () => {
+    const slots = {
+      'field.title.all': ({ form }) => (
+        <>
+          <label for="my-title">My Title</label>
+          <input id="my-title" name="My Title" vModel={form.title} />
+        </>
+      ),
+    }
 
-        // period in slot name is breaking: unknown: Unexpected token
-        // also can we use slot shorthand? #field.title.all="" ?
+    cy.mount(() => (
+      <Form vSlots={slots} values={{ title, description: '' }}></Form>
+    ))
 
-        // cy.mount(() => (
-        //     <Form>
-        //         <template v-slot:field.title.all="{ form }">
-        //             <span id="test_output" v-text="form.title" />
-        //             <input name="title" v-model="form.title" />
-        //         </template>
-        //     </Form>
-        // ), {
-        //     props: {
-        //         fields: ['title', 'description']
-        //     }
-        // });
+    cy.get('form input').should('have.length', 2)
+    cy.findByLabelText('Title').should('not.exist')
+    cy.findByLabelText('Description').should('be.visible')
+    cy.findByRole('textbox', { name: 'Description' }).should('not.have.value')
+    cy.findByRole('textbox', { name: 'My Title' })
+      .should('have.value', title)
+      .clear()
+      .type('hello world')
+  })
 
-        cy.get('form input').should('have.length', 2)
-        cy.get('label[for="title"]').should('not.exist')
-        cy.get('label[for="description"]').should('contain.text', 'Description')
-        cy.get('input[name="title"]').should('exist').should('not.have.value')
-        cy.get('input[name="description"]').should('exist').should('not.have.value')
-        cy.get('input[name="title"]').type('hello world')
-        cy.get('span#test_output').should('have.text', 'hello world')
-    })
+  it('overrides a field block input and keep label & error', () => {
+    const slots = {
+      'field.title': ({ form }) => (
+        <>
+          <label for="my-title">My Title</label>
+          <input id="my-title" name="my-title" vModel={form.title} />
+        </>
+      ),
+    }
 
-    it.skip('overrides a field block input and keep label & error', () => {
+    cy.mount(() => (
+      <Form
+        vSlots={slots}
+        fields={['title', 'description']}
+        values={{ title: '', description: '' }}
+      ></Form>
+    ))
 
-        // period in slot name is breaking: unknown: Unexpected token
-
-        // cy.mount(() => (
-        //     <Form>
-        //         <template v-slot:field.title="{ form }">
-        //             <span id="test_output" v-text="form.title" />
-        //             <input name="title" v-model="form.title" />
-        //         </template>
-        //     </Form>
-        // ), {
-        //     props: {
-        //         fields: ['title', 'description']
-        //     }
-        // });
-
-        cy.get('form input').should('have.length', 2)
-        cy.get('label[for="title"]').should('contain.text', 'Title')
-        cy.get('label[for="description"]').should('contain.text', 'Description')
-        cy.get('input[name="title"]').type('hello world')
-        cy.get('span#test_output').should('have.text', 'hello world')
-    })
+    cy.get('form input').should('have.length', 2)
+    cy.get('label[for="my-title"]').should('contain.text', 'My Title')
+    cy.get('label[for="description"]').should('contain.text', 'Description')
+    cy.get('input[name="my-title"]').type('hello world')
+  })
 })
 
 describe('Form Buttons', () => {
+  it('submit button is "create" by default', () => {
+    cy.mount(<Form fields={['title']} />)
+    cy.findByRole('button', { type: 'submit' }).should('have.text', 'Create')
+  })
 
-    it('submit button is "create" by default', () => {
-        cy.mount(<Form />)
+  it('submit button is "update" when passed values', () => {
+    cy.mount(<Form fields={['title']} values={{ title: 'Hello' }} />)
+    cy.findByRole('button', { type: 'submit' }).should('have.text', 'Update')
+  })
 
-        cy.get('button[type="submit"]').should('have.text', 'Create')
-    })
+  it('cancel button does not exist by default', () => {
+    cy.mount(<Form fields={['title']} values={{ title: 'Hello' }} />)
+    cy.findByText('Cancel').should('not.exist')
+  })
 
-    it('submit button is "update" when passed values', () => {
-        cy.mount(<Form />, {
-            props: {
-                fields: ['title'],
-                values: {title: 'Hello'}
-            }
-        })
+  it('cancel button exists when form has cancel listener', () => {
+    // the cancel handler should add onCancel to $attrs which displays button
+    const onCancelSpy = cy.spy().as('onCancelSpy')
 
-        cy.get('button[type="submit"]').should('have.text', 'Update')
-    })
+    cy.mount(() => <Form onCancel={onCancelSpy} />)
 
-    it('cancel button does not exist by default', () => {
-        cy.mount(<Form />, {
-            props: {
-                fields: ['title'],
-                values: {title: 'Hello'}
-            }
-        })
-
-        cy.get('button[data-testid="cancel"]').should('not.exist')
-    })
-
-    it.skip('cancel button exists when form has cancel listener', () => {
-
-        // the cancel handler should add onCancel to $attrs which displays button
-
-        cy.mount(<Form />, {
-            listeners: {
-                cancel: () => {}
-            }
-        })
-
-        cy.get('button[data-testid="cancel"]').should('exist')
-    })
+    cy.findByText('Cancel')
+      .should('be.visible')
+      .click()
+      .get('@onCancelSpy')
+      .should('have.been.called')
+  })
 })
 
-describe('Form Submit', () => {
+describe.skip('Form Submit', () => {
+  // In theory, this should work, however because Inertia has particular network requirements
+  // it requires a non-JSON response. This is possible to do with cy.intercept --
+  // you can get a request, response callback --
+  // however I don't know the shape this response wants to be in,
+  // nor do I understand how to prevent Inertia from taking over the router
 
-    it.skip('renders single error message for field when has data.errors', () => {
-        cy.mount(<Form />, {
-            data() {
-                return {
-                    errors: [{title: 'The title field is required.'}]
-                }
-            }
-        })
-
-        cy.get('div[data-testid="error"]').should('have.length', 1)
-        cy.get('div[data-testid="error"]').first().should('have.text', 'The title field is required.')
+  it('renders single error message for field when has data.errors', () => {
+    cy.intercept('/users/new', {
+      statusCode: 401,
+      body: { data: { errors: { name: 'Whoops!' } } },
     })
 
-    it.skip('renders single error message for field from response', () => {
-        cy.intercept('POST', '/users/new', {
-            fixture: 'inertia-error-new-user',
-            statusCode: 422,
-            headers: {
-                'Vary': 'Accept',
-                'X-Inertia': 'true',
-            }
-        }).as('formSubmit')
+    cy.mount(() => (
+      <Form action="/users/new" fields={['title', 'description']} />
+    ))
 
-        cy.mount(<Form />, {
-            props: {
-                action: '/users/new',
-                fields: ['title', 'description'],
-                formHandler: {
-                    processing: false,
-                    submit() {
-                      //
-                    },
-                    reset() {
-                        //
-                    }
-                }
-            }
-        })
+    // cy.get('div[data-testid="error"]').should('have.length', 1)
+    // cy.get('div[data-testid="error"]')
+    //   .first()
+    //   .should('have.text', 'The title field is required.')
+  })
 
-        cy.get('button[type="submit"]').click()
+  it.skip('renders single error message for field from response', () => {
+    cy.intercept('/users/new', {
+      body: { data: { errors: [{ name: 'title', value: 'oh no!' }] } },
+      statusCode: 400,
+      headers: {
+        Vary: 'Accept',
+        'X-Inertia': 'true',
+      },
+    }).as('formSubmit')
 
-        cy.wait('@formSubmit').then((interception) => {
-            cy.get('div[data-testid="error"]').should('have.length', 1)
-            cy.get('div[data-testid="error"]').first().should('have.text', 'The title field is required.')
-        })
-    })
+    cy.mount(<Form action="/users/new" fields={['title', 'description']} />)
+
+    // Inertia still can't handle submitting forms without a lot of dependencies on the url.
+
+    // cy.get('button[type="submit"]').click()
+    // cy.findByText('The title field is required')
+    // cy.get('[data-testid=error]').should('have.length', 1).and('be.visible')
+  })
 })

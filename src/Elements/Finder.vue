@@ -1,13 +1,13 @@
 <template>
   <div>
-    <div class="flex space-x-4 p-5">
+    <div class="flex p-5 space-x-4">
       <div class="flex-1">
         <div class="relative rounded-md shadow-sm">
           <div
-            class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none "
           >
             <svg
-              class="h-5 w-5 text-gray-400"
+              class="w-5 h-5 text-gray-400"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -27,7 +27,7 @@
             type="text"
             name="search"
             id="search"
-            class="focus:ring-gray-500 focus:border-gray-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
+            class="block w-full pl-10 border-gray-300 rounded-md  focus:ring-gray-500 focus:border-gray-500 sm:text-sm"
             placeholder="Search"
           />
         </div>
@@ -50,7 +50,7 @@
 
       <span
         v-if="$slots['filters']"
-        class="select rounded-md border border-gray-300 cursor-pointer"
+        class="border border-gray-300 rounded-md cursor-pointer select"
         @click="filtering = true"
         :class="{
           'bg-blue-100 border-2 border-blue-500': isFiltering,
@@ -73,20 +73,20 @@
           class="absolute inset-0 transition-opacity"
           aria-hidden="true"
         ></div>
-        <div class="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+        <div class="fixed inset-y-0 right-0 flex max-w-full pl-10">
           <div class="relative w-screen max-w-md">
             <div
-              class="absolute top-0 left-0 -ml-8 pt-4 pr-2 flex sm:-ml-10 sm:pr-4"
+              class="absolute top-0 left-0 flex pt-4 pr-2 -ml-8  sm:-ml-10 sm:pr-4"
             >
               <button
                 @click="filtering = false"
                 type="button"
-                class="rounded-md text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
+                class="text-gray-300 rounded-md  hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
               >
                 <span class="sr-only">Close panel</span>
                 <!-- Heroicon name: outline/x -->
                 <svg
-                  class="h-6 w-6"
+                  class="w-6 h-6"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -104,9 +104,9 @@
             </div>
 
             <div
-              class="h-full flex flex-col py-6 bg-white shadow-xl overflow-y-scroll"
+              class="flex flex-col h-full py-6 overflow-y-scroll bg-white shadow-xl "
             >
-              <div class="px-4 sm:px-6 pb-6 border-b">
+              <div class="px-4 pb-6 border-b sm:px-6">
                 <h2
                   class="text-lg font-medium text-gray-900"
                   id="slide-over-title"
@@ -114,16 +114,16 @@
                   Filters
                 </h2>
               </div>
-              <div class="mt-6 relative flex-1 px-4 sm:px-6">
+              <div class="relative flex-1 px-4 mt-6 sm:px-6">
                 <div class="absolute inset-0 px-4 sm:px-6">
                   <div
-                    class="h-full flex justify-between flex-col"
+                    class="flex flex-col justify-between h-full"
                     aria-hidden="true"
                   >
                     <div class="flex-1 overflow-auto">
                       <slot name="filters" :filters="filterValues" />
                     </div>
-                    <div class="flex space-x-4 pb-8 pt-4 border-t mt-4">
+                    <div class="flex pt-4 pb-8 mt-4 space-x-4 border-t">
                       <jet-button @click="filter">Filter</jet-button>
                       <jet-secondary-button @click="clearFilters"
                         >Clear</jet-secondary-button
@@ -159,12 +159,12 @@
 }
 </style>
 <script>
-import JetInput from '@/Jetstream/Input.vue';
-import JetSelect from '../Inputs/Select.vue';
-import Connect from '../Mixins/Connect';
-import { Inertia } from '@inertiajs/inertia';
-import JetButton from '@/Jetstream/Button.vue';
-import JetSecondaryButton from '@/Jetstream/SecondaryButton.vue';
+import JetInput from '@/Jetstream/Input.vue'
+import JetSelect from '../Inputs/Select.vue'
+import Connect from '../Mixins/Connect'
+import { Inertia } from '@inertiajs/inertia'
+import JetButton from '@/Jetstream/Button.vue'
+import JetSecondaryButton from '@/Jetstream/SecondaryButton.vue'
 
 export default {
   props: {
@@ -184,10 +184,10 @@ export default {
   },
   beforeMount() {
     Inertia.on('start', () => {
-      this.filtering = false;
-    });
+      this.filtering = false
+    })
 
-    this.initFilters();
+    this.initFilters()
   },
   data() {
     return {
@@ -196,57 +196,55 @@ export default {
       searching: null,
       sorting: null,
       trashing: null,
-    };
+    }
   },
   methods: {
     clearFilters() {
       this.filters.forEach((filter) => {
-        this.filterValues[filter] = null;
-      });
-      this.filter();
+        this.filterValues[filter] = null
+      })
+      this.filter()
     },
     filterValue(key) {
-      return this.filterValues[key];
+      return this.filterValues[key]
     },
     initFilters() {
       this.filters.forEach((filter) => {
-        this.filterValues[filter] = null;
-      });
+        this.filterValues[filter] = null
+      })
 
-      let search = window.location.search;
+      let search = window.location.search
 
       if (this.connect) {
-        search = localStorage.getItem(this.connect);
+        search = localStorage.getItem(this.connect)
       }
 
-      let parameters = Object.fromEntries(
-        new URLSearchParams(search).entries()
-      );
+      let parameters = Object.fromEntries(new URLSearchParams(search).entries())
 
       Object.keys(this.filterValues).forEach((key) => {
         if (parameters.hasOwnProperty(key)) {
-          this.filterValues[key] = parameters[key];
+          this.filterValues[key] = parameters[key]
         }
-      });
+      })
     },
     filter() {
-      let filters = JSON.parse(JSON.stringify(this.filterValues));
+      let filters = JSON.parse(JSON.stringify(this.filterValues))
 
       Object.keys(filters).forEach(
         (k) => filters[k] == null && delete filters[k]
-      );
+      )
 
-      Inertia.get(window.location.pathname, filters, { preserveState: true });
+      Inertia.get(window.location.pathname, filters, { preserveState: true })
 
-      this.$emit('filter', filters);
+      this.$emit('filter', filters)
     },
     update(payload) {
       if (this.connect) {
-        this.connectChanged('updateQuery', payload);
+        this.connectChanged('updateQuery', payload)
       } else {
         Inertia.get(window.location.pathname, payload, {
           preserveState: true,
-        });
+        })
       }
     },
     displayFormat(item) {
@@ -254,7 +252,7 @@ export default {
         .replace('_', ' ')
         .split(' ')
         .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-        .join(' ');
+        .join(' ')
     },
   },
   computed: {
@@ -262,7 +260,7 @@ export default {
       return (
         Object.keys(this.filterValues).filter((key) => this.filterValues[key])
           .length > 0
-      );
+      )
     },
     trashOptions() {
       return [
@@ -276,35 +274,35 @@ export default {
           value: 'true',
           display: 'Only Trashed',
         },
-      ];
+      ]
     },
     sortOptions() {
       if (!this.sort) {
-        return [];
+        return []
       }
 
-      let options = [];
+      let options = []
 
       this.sort.forEach((item) => {
         if (item instanceof Object) {
-          options.push(item);
+          options.push(item)
         } else {
           options.push({
             name: 'sort',
             value: item,
             display: this.displayFormat(item) + ' (asc)',
-          });
+          })
 
           options.push({
             name: 'sort-desc',
             value: item,
             display: this.displayFormat(item) + ' (desc)',
-          });
+          })
         }
-      });
+      })
 
-      return options;
+      return options
     },
   },
-};
+}
 </script>
