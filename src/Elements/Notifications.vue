@@ -151,7 +151,7 @@
 
 <script>
 import { JetList } from '../../index';
-import JetDropdown from '@/Jetstream/Dropdown';
+import JetDropdown from '@/Jetstream/Dropdown.vue';
 
 export default {
   components: {

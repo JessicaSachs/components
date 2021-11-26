@@ -2,21 +2,21 @@ export default {
   inject: ['config'],
 
   props: {
-    parent: Object,
+    routePrefix: String,
   },
   methods: {
-    getRoute(name, resource) {
-      let params = [];
+    getRoute(name, resource, parent) {
+        let params = []
 
-      if (this.parent !== undefined) {
-        if (typeof this.parent === 'object') {
-          params.push(this.parent.id);
-        } else {
-          params.push(this.parent);
+        if (parent !== null && parent !== undefined) {
+            if (typeof parent === 'object') {
+                params.push(parent.id);
+            } else {
+                params.push(parent);
+            }
         }
-      }
 
-      if (resource !== undefined) {
+      if (resource !== null && resource !== undefined) {
         if (typeof resource === 'object') {
           params.push(resource.id);
         } else {
@@ -24,14 +24,15 @@ export default {
         }
       }
 
-      if (this.config.has('route_name_prefix')) {
-        return route(
-          this.config.get('route_name_prefix') + this.resource + '.' + name,
-          params
-        );
+      let routeName = this.resource + '.' + name;
+
+      if(this.routePrefix) {
+          routeName = this.routePrefix + '.' + routeName;
+      } else if (this.config.has('route_name_prefix')) {
+          routeName = this.config.get('route_name_prefix') + '.' + routeName
       }
 
-      return route(this.resource + '.' + name, params);
+      return route(routeName, params);
     },
   },
 };

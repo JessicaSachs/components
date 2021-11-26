@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import Modal from '@/Jetstream/Modal';
+import Modal from '@/Jetstream/Modal.vue';
 
 export default {
   components: {

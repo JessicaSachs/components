@@ -44,9 +44,9 @@
 </template>
 
 <script>
-import JetModal from '@/Jetstream/Modal';
-import JetInput from '@/Jetstream/Input';
-import JetSecondaryButton from '@/Jetstream/SecondaryButton';
+import JetModal from '@/Jetstream/Modal.vue';
+import JetInput from '@/Jetstream/Input.vue';
+import JetSecondaryButton from '@/Jetstream/SecondaryButton.vue';
 import { JetList, JetFinder } from '@jetstreamkit/components';
 
 export default {

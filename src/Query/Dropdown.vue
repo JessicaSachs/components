@@ -1,8 +1,9 @@
 <template>
-  <jet-dropdown align="right" width="60">
+  <jet-dropdown align="right" :width="60">
     <template #trigger>
       <span class="inline-flex rounded-md mr-3">
         <button
+          data-testid="dropdown-trigger"
           type="button"
           :class="{ 'bg-indigo-500 text-white': this.active }"
           class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md hover:text-black focus:outline-none focus:text-black active:text-black transition ease-in-out duration-150"
@@ -33,7 +34,7 @@
   </jet-dropdown>
 </template>
 <script>
-import JetDropdown from '@/Jetstream/Dropdown';
+import JetDropdown from '@/Jetstream/Dropdown.vue'
 
 export default {
   components: {
@@ -42,8 +43,8 @@ export default {
   props: ['name'],
   computed: {
     active() {
-      return window.location.search.length > 0;
+      return window.location.search.length > 0
     },
   },
-};
+}
 </script>
